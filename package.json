@@ -1,0 +1,16 @@
+{
+  "name": "microservicio-incidencias",
+  "version": "1.0.0",
+  "description": "Microservicio educativo para transformar JSON y almacenarlo en MariaDB",
+  "main": "src/app.js",
+  "scripts": {
+    "start": "node src/app.js",
+    "dev": "node --watch src/app.js",
+    "check": "node --check src/app.js && node --check src/services/incidencia.service.js"
+  },
+  "dependencies": {
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "mysql2": "^3.15.3"
+  }
+}

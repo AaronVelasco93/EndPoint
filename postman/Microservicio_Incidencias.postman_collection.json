@@ -1,0 +1,67 @@
+{
+  "info": {
+    "name": "Microservicio de incidencias",
+    "description": "Peticiones educativas para probar POST, GET y PUT.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "incidenciaId",
+      "value": "1"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Comprobar salud",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/salud"
+      }
+    },
+    {
+      "name": "2. Crear incidencia",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"folio\": \"INC-001\",\n  \"usuario\": {\n    \"nombre\": \"Juan Pérez\",\n    \"correo\": \"juan@correo.com\"\n  },\n  \"ubicacion\": {\n    \"edificio\": \"A4\",\n    \"salon\": \"A401\"\n  },\n  \"tipo\": \"Equipo de cómputo\",\n  \"descripcion\": \"La computadora no enciende\",\n  \"estatus\": \"PENDIENTE\"\n}"
+        },
+        "url": "{{baseUrl}}/api/incidencias"
+      }
+    },
+    {
+      "name": "3. Listar incidencias",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/incidencias"
+      }
+    },
+    {
+      "name": "4. Consultar incidencia",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/incidencias/{{incidenciaId}}"
+      }
+    },
+    {
+      "name": "5. Cambiar estatus",
+      "request": {
+        "method": "PUT",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"estatus\": \"EN_PROCESO\"\n}"
+        },
+        "url": "{{baseUrl}}/api/incidencias/{{incidenciaId}}/estatus"
+      }
+    }
+  ]
+}

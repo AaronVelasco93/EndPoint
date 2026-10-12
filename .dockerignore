@@ -1,0 +1,9 @@
+node_modules
+npm-debug.log
+.env
+.git
+.gitignore
+postman
+database
+README.md
+Instruccion_Practica_Microservicios_API_JSON_SQL_Postman.txt

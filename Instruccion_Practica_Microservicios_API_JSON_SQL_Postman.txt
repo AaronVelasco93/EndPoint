@@ -1,0 +1,467 @@
+PRÁCTICA: MICROSERVICIO PARA RECIBIR JSON, TRANSFORMAR DATOS Y GUARDARLOS EN SQL
+
+Asignatura: Sistemas de Información
+
+OBJETIVO
+
+Desarrollar una práctica sencilla donde los alumnos comprendan cómo un microservicio puede:
+
+1. Recibir información desde una API o desde Postman.
+2. Validar los datos recibidos.
+3. Transformar una estructura JSON no relacional.
+4. Convertir esa información en datos relacionados.
+5. Insertar los datos en una base de datos MySQL o MariaDB.
+6. Consultar el resultado directamente mediante SQL.
+7. Actualizar el estatus de los registros mediante peticiones HTTP.
+
+IDEA GENERAL
+
+La práctica simula que una API externa entrega información en formato JSON.
+
+El microservicio recibe esa información y la transforma para almacenarla en una base de datos relacional.
+
+Flujo general:
+
+API externa / Postman
+        ↓
+JSON
+        ↓
+Microservicio
+        ↓
+Validación
+        ↓
+Transformación
+        ↓
+Normalización
+        ↓
+MySQL / MariaDB
+        ↓
+Respuesta JSON
+        ↓
+Postman
+
+
+EJEMPLO DE INFORMACIÓN RECIBIDA
+
+Se recibe la siguiente información:
+
+{
+  "folio": "INC-001",
+  "usuario": {
+    "nombre": "Juan Pérez",
+    "correo": "juan@correo.com"
+  },
+  "ubicacion": {
+    "edificio": "A4",
+    "salon": "A401"
+  },
+  "tipo": "Equipo de cómputo",
+  "descripcion": "La computadora no enciende",
+  "estatus": "PENDIENTE"
+}
+
+
+EXPLICACIÓN
+
+La estructura JSON puede contener objetos dentro de otros objetos.
+
+En este ejemplo existen:
+
+- Información general de la incidencia.
+- Información del usuario.
+- Información de la ubicación.
+- Estatus.
+
+El objetivo del microservicio es transformar esta información y almacenarla en tablas relacionadas.
+
+
+MODELO RELACIONAL PROPUESTO
+
+Tabla: USUARIOS
+
+- id_usuario
+- nombre
+- correo
+
+
+Tabla: UBICACIONES
+
+- id_ubicacion
+- edificio
+- salon
+
+
+Tabla: ESTATUS
+
+- id_estatus
+- nombre
+
+
+Tabla: INCIDENCIAS
+
+- id_incidencia
+- folio
+- id_usuario
+- id_ubicacion
+- id_estatus
+- tipo
+- descripcion
+- fecha
+
+
+RELACIÓN ENTRE LOS DATOS
+
+JSON recibido:
+
+usuario.nombre
+usuario.correo
+ubicacion.edificio
+ubicacion.salon
+estatus
+descripcion
+
+        ↓
+
+MICROSERVICIO
+
+        ↓
+
+USUARIOS
+UBICACIONES
+ESTATUS
+INCIDENCIAS
+
+
+FUNCIONES DEL MICROSERVICIO
+
+Cuando el microservicio recibe el JSON deberá:
+
+1. Verificar que exista el folio.
+2. Validar que existan los datos obligatorios.
+3. Buscar si el usuario ya existe.
+4. Si no existe, crear el usuario.
+5. Buscar si la ubicación ya existe.
+6. Si no existe, crear la ubicación.
+7. Buscar el identificador correspondiente al estatus.
+8. Insertar la incidencia utilizando llaves foráneas.
+9. Devolver una respuesta JSON.
+
+
+RESPUESTA ESPERADA
+
+Ejemplo:
+
+{
+  "resultado": "OK",
+  "mensaje": "Incidencia registrada",
+  "id_incidencia": 25,
+  "estatus": "PENDIENTE"
+}
+
+
+IDEA IMPORTANTE
+
+La estructura con la que recibimos la información no tiene que ser igual a la estructura con la que la almacenamos.
+
+El microservicio puede recibir una estructura JSON anidada y transformarla en varias tablas relacionadas.
+
+
+USO DE POSTMAN
+
+Como no se desarrollará una interfaz gráfica en esta práctica, Postman funcionará como cliente.
+
+PETICIÓN PARA CREAR UNA INCIDENCIA
+
+Método:
+
+POST
+
+URL:
+
+http://localhost:8080/api/incidencias
+
+Body -> raw -> JSON
+
+{
+  "folio": "INC-001",
+  "usuario": {
+    "nombre": "Juan Pérez",
+    "correo": "juan@correo.com"
+  },
+  "ubicacion": {
+    "edificio": "A4",
+    "salon": "A401"
+  },
+  "tipo": "Equipo de cómputo",
+  "descripcion": "La computadora no enciende",
+  "estatus": "PENDIENTE"
+}
+
+
+RESPUESTA DEL MICROSERVICIO
+
+{
+  "success": true,
+  "id": 1,
+  "mensaje": "Incidencia registrada correctamente"
+}
+
+
+MÉTODOS HTTP PROPUESTOS
+
+Crear incidencia:
+
+POST /api/incidencias
+
+
+Consultar todas las incidencias:
+
+GET /api/incidencias
+
+
+Consultar una incidencia:
+
+GET /api/incidencias/1
+
+
+Actualizar estatus:
+
+PUT /api/incidencias/1/estatus
+
+
+BODY PARA CAMBIAR ESTATUS
+
+{
+  "estatus": "EN_PROCESO"
+}
+
+También podría enviarse:
+
+{
+  "estatus": "ATENDIDA"
+}
+
+
+CATÁLOGO DE ESTATUS
+
+Se propone una tabla independiente para manejar los estatus.
+
+CREATE TABLE estatus (
+    id_estatus INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(30) NOT NULL UNIQUE
+);
+
+
+INSERTAR ESTATUS
+
+INSERT INTO estatus (nombre)
+VALUES
+('PENDIENTE'),
+('EN_PROCESO'),
+('ATENDIDA'),
+('CANCELADA');
+
+
+EJEMPLO DE DATOS
+
+Tabla INCIDENCIAS
+
+id_incidencia | folio   | id_usuario | id_ubicacion | id_estatus
+----------------------------------------------------------------
+1             | INC-001 | 3          | 5            | 1
+
+
+Tabla ESTATUS
+
+id_estatus | nombre
+--------------------------
+1          | PENDIENTE
+2          | EN_PROCESO
+3          | ATENDIDA
+4          | CANCELADA
+
+
+MODELO SQL PROPUESTO
+
+CREATE TABLE usuarios (
+    id_usuario INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    correo VARCHAR(120) NOT NULL UNIQUE
+);
+
+CREATE TABLE ubicaciones (
+    id_ubicacion INT AUTO_INCREMENT PRIMARY KEY,
+    edificio VARCHAR(50) NOT NULL,
+    salon VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE estatus (
+    id_estatus INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(30) NOT NULL UNIQUE
+);
+
+CREATE TABLE incidencias (
+    id_incidencia INT AUTO_INCREMENT PRIMARY KEY,
+    folio VARCHAR(30) NOT NULL UNIQUE,
+    id_usuario INT NOT NULL,
+    id_ubicacion INT NOT NULL,
+    id_estatus INT NOT NULL,
+    tipo VARCHAR(100) NOT NULL,
+    descripcion VARCHAR(255) NOT NULL,
+    fecha DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario),
+    FOREIGN KEY (id_ubicacion) REFERENCES ubicaciones(id_ubicacion),
+    FOREIGN KEY (id_estatus) REFERENCES estatus(id_estatus)
+);
+
+
+CONSULTA PARA VER EL RESULTADO
+
+SELECT
+    i.id_incidencia,
+    i.folio,
+    u.nombre AS usuario,
+    u.correo,
+    ub.edificio,
+    ub.salon,
+    e.nombre AS estatus,
+    i.tipo,
+    i.descripcion,
+    i.fecha
+FROM incidencias i
+INNER JOIN usuarios u
+    ON i.id_usuario = u.id_usuario
+INNER JOIN ubicaciones ub
+    ON i.id_ubicacion = ub.id_ubicacion
+INNER JOIN estatus e
+    ON i.id_estatus = e.id_estatus;
+
+
+ARQUITECTURA PROPUESTA
+
+POSTMAN
+   │
+   │ JSON
+   ↓
+MICROSERVICIO API
+   │
+   ├── Recibe
+   ├── Valida
+   ├── Transforma
+   ├── Relaciona
+   └── Normaliza
+   │
+   ↓
+MYSQL / MARIADB
+   │
+   ├── usuarios
+   ├── ubicaciones
+   ├── estatus
+   └── incidencias
+
+
+EVOLUCIÓN POSTERIOR
+
+Posteriormente la práctica puede crecer a:
+
+API EXTERNA
+     ↓
+Microservicio de integración
+     ↓
+Microservicio de incidencias
+     ↓
+MySQL / MariaDB
+
+
+RELACIÓN CON SISTEMAS DE INFORMACIÓN
+
+Entrada:
+
+JSON recibido desde una API o Postman.
+
+
+Procesamiento:
+
+- Validación.
+- Transformación.
+- Reglas de negocio.
+- Normalización.
+- Relación entre entidades.
+
+
+Almacenamiento:
+
+MySQL / MariaDB.
+
+
+Salida:
+
+Respuesta JSON.
+
+
+Retroalimentación:
+
+- Código HTTP.
+- Mensaje de éxito o error.
+- Estatus.
+- Identificador generado.
+
+
+ACTIVIDAD PARA LOS ALUMNOS
+
+Desarrollar un microservicio que permita:
+
+1. Recibir una incidencia mediante POST.
+2. Recibir los datos en formato JSON.
+3. Validar la información.
+4. Separar los datos del usuario.
+5. Separar los datos de ubicación.
+6. Buscar o insertar el usuario.
+7. Buscar o insertar la ubicación.
+8. Obtener el id del estatus.
+9. Insertar la incidencia.
+10. Devolver una respuesta JSON.
+11. Consultar las incidencias mediante GET.
+12. Cambiar el estatus mediante PUT.
+13. Verificar el resultado directamente mediante una consulta SQL.
+
+
+EVIDENCIAS SUGERIDAS
+
+El alumno deberá entregar:
+
+- Código fuente del microservicio.
+- Script SQL.
+- Captura de la petición POST en Postman.
+- Captura de la respuesta JSON.
+- Captura de la petición GET.
+- Captura de la actualización de estatus mediante PUT.
+- Captura de la información almacenada en MySQL o MariaDB.
+- Consulta SQL con JOIN para mostrar la información relacionada.
+- Breve explicación del proceso de transformación de JSON a modelo relacional.
+
+
+TECNOLOGÍAS SUGERIDAS
+
+Opción 1:
+- PHP
+- Apache
+- MySQL / MariaDB
+- Postman
+- Docker / Docker Compose
+
+Opción 2:
+- Node.js
+- Express
+- MySQL / MariaDB
+- Postman
+- Docker / Docker Compose
+
+
+IDEA CLAVE
+
+El objetivo de la práctica no es desarrollar una interfaz gráfica.
+
+El objetivo es comprender cómo un microservicio puede recibir información desde una API, procesarla, transformarla, relacionarla y almacenarla correctamente en una base de datos relacional.
+
+Postman permite simular al cliente y probar las operaciones POST, GET y PUT sin necesidad de desarrollar todavía una interfaz web.

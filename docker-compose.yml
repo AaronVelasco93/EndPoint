@@ -1,0 +1,45 @@
+services:
+  # Contenedor del microservicio Node.js.
+  api:
+    build: .
+    container_name: incidencias_api
+    restart: unless-stopped
+    ports:
+      - "${PORT:-8080}:8080"
+    environment:
+      PORT: 8080
+      DB_HOST: db
+      DB_PORT: 3306
+      # Coincide deliberadamente con el nombre usado por schema.sql.
+      DB_NAME: microservicio_incidencias
+      DB_USER: ${MARIADB_USER}
+      DB_PASSWORD: ${MARIADB_PASSWORD}
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # Contenedor de base de datos MariaDB.
+  db:
+    image: mariadb:11.4
+    container_name: incidencias_db
+    restart: unless-stopped
+    environment:
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}
+      # El nombre permanece fijo para coincidir con database/schema.sql.
+      MARIADB_DATABASE: microservicio_incidencias
+      MARIADB_USER: ${MARIADB_USER}
+      MARIADB_PASSWORD: ${MARIADB_PASSWORD}
+    volumes:
+      # Conserva los datos aunque se recree el contenedor.
+      - incidencias_data:/var/lib/mysql
+      # Ejecuta el modelo SQL la primera vez que se crea el volumen.
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+volumes:
+  incidencias_data:
