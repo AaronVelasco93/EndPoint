@@ -2,6 +2,9 @@
 
 Proyecto educativo que recibe un JSON anidado, valida sus datos, los transforma en registros relacionados y los almacena en MariaDB/MySQL. No incluye interfaz gráfica: se prueba con Postman.
 
+La explicación detallada para iniciar Docker y realizar las pruebas está en
+[`GUIA_USO_POSTMAN.md`](GUIA_USO_POSTMAN.md).
+
 ## Tecnologías
 
 - Node.js y Express para la API HTTP.
@@ -61,7 +64,9 @@ El archivo clave es `src/services/incidencia.service.js`. Su función `crear()` 
 ## Opción A: ejecutar con Docker
 
 1. Copia `.env.example` con el nombre `.env`.
-2. Cambia las contraseñas de ejemplo.
+2. Configura `DB_USER` y `DB_PASSWORD`. Docker reutiliza estos valores para
+   crear el usuario de MariaDB; en esta práctica local también usa
+   `DB_PASSWORD` como contraseña inicial de `root`.
 3. Inicia los contenedores:
 
 ```bash

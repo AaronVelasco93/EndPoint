@@ -1,8 +1,7 @@
 # Dependencias descargadas por npm.
 node_modules/
 
-# Credenciales locales: nunca deben subirse al repositorio.
-.env
+
 
 # Registros y archivos generados.
 *.log

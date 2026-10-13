@@ -12,8 +12,8 @@ services:
       DB_PORT: 3306
       # Coincide deliberadamente con el nombre usado por schema.sql.
       DB_NAME: microservicio_incidencias
-      DB_USER: ${MARIADB_USER}
-      DB_PASSWORD: ${MARIADB_PASSWORD}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
     depends_on:
       db:
         condition: service_healthy
@@ -24,11 +24,12 @@ services:
     container_name: incidencias_db
     restart: unless-stopped
     environment:
-      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}
+      # Para simplificar la práctica, usa las mismas variables DB_* de Node.
+      MARIADB_ROOT_PASSWORD: ${DB_PASSWORD}
       # El nombre permanece fijo para coincidir con database/schema.sql.
       MARIADB_DATABASE: microservicio_incidencias
-      MARIADB_USER: ${MARIADB_USER}
-      MARIADB_PASSWORD: ${MARIADB_PASSWORD}
+      MARIADB_USER: ${DB_USER}
+      MARIADB_PASSWORD: ${DB_PASSWORD}
     volumes:
       # Conserva los datos aunque se recree el contenedor.
       - incidencias_data:/var/lib/mysql
